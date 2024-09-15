@@ -135,8 +135,8 @@ fn main() {
         let w = hipcc_version[v..].find(|c: char| !c.is_digit(10))
             .expect("can't parse \"HIP version: \" in `hipcc --version`");
         let major_ver = hipcc_version[v..v + w].parse::<i32>().unwrap_or(0);
-        if major_ver < 6 {
-            panic!("Unsupported HIP version {} < 6", major_ver);
+        if major_ver < 5 {
+            panic!("Unsupported HIP version {} < 5", major_ver);
         }
 
         let x = hipcc_version
