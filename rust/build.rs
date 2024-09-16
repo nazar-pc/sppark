@@ -165,6 +165,8 @@ fn main() {
             }
         }
 
+        println!("cargo::rustc-link-lib=amdhip64");
+
         let mut ccmd = cc::Build::new();
         ccmd.compiler(hipcc);
         ccmd.cpp(true);
@@ -180,7 +182,6 @@ fn main() {
                 libpath.to_string_lossy()
             );
         }
-        println!("cargo::rustc-link-lib=amdhip64");
         println!("cargo:TARGET=rocm");
     }
 }
