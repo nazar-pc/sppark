@@ -19,23 +19,23 @@ fn main() {
             .expect("can't access parent of current directory")
             .into();
         println!(
-            "cargo:rerun-if-changed={}",
+            "cargo::rerun-if-changed={}",
             base_dir.join("ec").to_string_lossy()
         );
         println!(
-            "cargo:rerun-if-changed={}",
+            "cargo::rerun-if-changed={}",
             base_dir.join("ff").to_string_lossy()
         );
         println!(
-            "cargo:rerun-if-changed={}",
+            "cargo::rerun-if-changed={}",
             base_dir.join("ntt").to_string_lossy()
         );
         println!(
-            "cargo:rerun-if-changed={}",
+            "cargo::rerun-if-changed={}",
             base_dir.join("msm").to_string_lossy()
         );
         println!(
-            "cargo:rerun-if-changed={}",
+            "cargo::rerun-if-changed={}",
             base_dir.join("util").to_string_lossy()
         );
     }
@@ -44,13 +44,13 @@ fn main() {
 
     let all_gpus = base_dir.join("util/all_gpus.cpp");
 
-    println!("cargo:rerun-if-env-changed=NVCC");
+    println!("cargo::rerun-if-env-changed=NVCC");
     let nvcc = match env::var("NVCC") {
         Ok(var) => which::which(var),
         Err(_) => which::which("nvcc"),
     };
 
-    println!("cargo:rerun-if-env-changed=HIPCC");
+    println!("cargo::rerun-if-env-changed=HIPCC");
     let hipcc = match env::var("HIPCC") {
         Ok(var) => which::which(var),
         Err(_) => which::which("hipcc"),
@@ -109,7 +109,7 @@ fn main() {
             nvcc.include(&base_dir);
             nvcc.file(&all_gpus)
                 .compile("sppark_cuda");
-            println!("cargo:rustc-cfg=feature=\"cuda\"");
+            println!("cargo::rustc-cfg=feature=\"cuda\"");
             println!("cargo:TARGET=cuda");
             return;
         }
@@ -165,22 +165,22 @@ fn main() {
             }
         }
 
-        if libpath.parent().is_some() {
-            let mut ccmd = cc::Build::new();
-            ccmd.compiler(hipcc);
-            ccmd.cpp(true);
-            ccmd.include(&base_dir);
-            ccmd.flag("-include").flag("util/cuda2hip.hpp");
-            ccmd.file(&all_gpus)
-                .compile("sppark_rocm");
-            println!("cargo:rustc-cfg=feature=\"rocm\"");
+        let mut ccmd = cc::Build::new();
+        ccmd.compiler(hipcc);
+        ccmd.cpp(true);
+        ccmd.include(&base_dir);
+        ccmd.flag("-include").flag("util/cuda2hip.hpp");
+        ccmd.file(&all_gpus)
+            .compile("sppark_rocm");
+        println!("cargo::rustc-cfg=feature=\"rocm\"");
 
+        if libpath.parent().is_some() {
             println!(
-                "cargo:rustc-link-search=native={}",
+                "cargo::rustc-link-search=native={}",
                 libpath.to_string_lossy()
             );
-            println!("cargo:rustc-link-lib=amdhip64");
-            println!("cargo:TARGET=rocm");
         }
+        println!("cargo::rustc-link-lib=amdhip64");
+        println!("cargo:TARGET=rocm");
     }
 }
